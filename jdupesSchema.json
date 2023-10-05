@@ -1,0 +1,73 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+        "$schema": {
+            "type": "string"
+        },
+        "jdupesVersion": {
+            "type": "string"
+        },
+        "jdupesVersionDate": {
+            "type": "string"
+        },
+        "commandLine": {
+            "type": "string"
+        },
+        "extensionFlags": {
+            "type": "string"
+        },
+        "matchSets": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "fileSize": {
+                            "type": "integer"
+                        },
+                        "fileList": {
+                            "type": "array",
+                            "items": [
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "filePath": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "filePath"
+                                    ]
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "filePath": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "filePath"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "fileSize",
+                        "fileList"
+                    ]
+                }
+            ]
+        }
+    },
+    "required": [
+        "$schema",
+        "jdupesVersion",
+        "jdupesVersionDate",
+        "commandLine",
+        "extensionFlags",
+        "matchSets"
+    ]
+}
