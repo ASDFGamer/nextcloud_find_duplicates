@@ -73,7 +73,7 @@ class DuplicateInFolder:
 
 class JDupesOutput:
 
-    def __init__(self, nextcloud_info: NextcloudInfo) -> None:
+    def __init__(self, nextcloud_info: NextcloudInfo, min_file_size: int = 0) -> None:
         self._nextcloud_info = nextcloud_info
         json_data = self._execute_jdupes(nextcloud_info)
         self.version: str = json_data["jdupesVersion"]
@@ -81,7 +81,7 @@ class JDupesOutput:
         self.version_date: datetime.date = datetime.date.fromisoformat(version_date_str)
         self.command_line: str = json_data["commandLine"]
         self.extension_flags: str = json_data["extensionFlags"]
-        self.match_sets: set[MatchSet] = self._get_matchsets(json_data)
+        self.match_sets: set[MatchSet] = self._get_matchsets(json_data, min_file_size)
         self._folder_cache: dict[Path, set[MatchSet]] = self._create_folder_cache(self.match_sets)
 
     @staticmethod
@@ -96,10 +96,15 @@ class JDupesOutput:
         return json.loads(json_str)
 
     @staticmethod
-    def _get_matchsets(json_data: dict[str, Any]) -> set[MatchSet]:
+    def _get_matchsets(json_data: dict[str, Any], min_file_size: int) -> set[MatchSet]:
         result:set[MatchSet] = set()
+        print("Min File Size: " + str(min_file_size))
         for match_set in json_data["matchSets"]:
-            result.add(MatchSet(match_set))
+            match_set_obj = MatchSet(match_set)
+            if match_set_obj.file_size > min_file_size:
+                result.add(match_set_obj)
+            else:
+                print("File to small")
         return result
 
     @staticmethod
@@ -196,6 +201,7 @@ def parse_args() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument("username")
     parser.add_argument("domain")
+    parser.add_argument("-s", "--min_size", nargs="?",type=int)
     return parser.parse_args()
 
 def write_to_nextcloud(nextcloud_info: NextcloudInfo, file_content: str) -> None:
@@ -212,7 +218,7 @@ def write_to_nextcloud(nextcloud_info: NextcloudInfo, file_content: str) -> None
 def main() -> None:
     args = parse_args()
     nextcloud_info = NextcloudInfo(user= args.username,domain= args.domain)
-    jdupes_outpt: JDupesOutput = JDupesOutput(nextcloud_info)
+    jdupes_outpt: JDupesOutput = JDupesOutput(nextcloud_info, min_file_size=args.min_size)
     markdown = jdupes_outpt.to_markdown()
     write_to_nextcloud(nextcloud_info, markdown)
 if __name__ == "__main__":
