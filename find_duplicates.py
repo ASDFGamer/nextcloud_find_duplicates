@@ -98,13 +98,10 @@ class JDupesOutput:
     @staticmethod
     def _get_matchsets(json_data: dict[str, Any], min_file_size: int) -> set[MatchSet]:
         result:set[MatchSet] = set()
-        print("Min File Size: " + str(min_file_size))
         for match_set in json_data["matchSets"]:
             match_set_obj = MatchSet(match_set)
             if match_set_obj.file_size > min_file_size:
                 result.add(match_set_obj)
-            else:
-                print("File to small")
         return result
 
     @staticmethod
