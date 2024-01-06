@@ -126,24 +126,25 @@ class JDupesOutput:
                 result.add(file_path.parent)
         return result
 
-    def duplicates_in_folder(self, folder: Path) -> set[DuplicateInFolder]:
-        result: set[DuplicateInFolder] = set()
+    def duplicates_in_folder(self, folder: Path) -> list[DuplicateInFolder]:
+        result: list[DuplicateInFolder] = []
         for match_set in self._folder_cache[folder]:
             for file_path in match_set.file_list:
                 if file_path.parent == folder:
                     other_files: set[Path] = set(match_set.file_list.copy())
                     other_files.remove(file_path)
                     other_files_frozen = frozenset(other_files)
-                    result.add(DuplicateInFolder(file_path,other_files_frozen,match_set.file_size))
+                    result.append(DuplicateInFolder(file_path,other_files_frozen,match_set.file_size))
+        result.sort(key=lambda duplicate_in_folder: duplicate_in_folder.in_duplicate_folder)
         return result
 
 
     def to_markdown(self)-> str:
         Log.info("Parse Folders with duplicates")
-        duplicate_folders: list[tuple[Path, set[DuplicateInFolder], list[Path]]] = []
+        duplicate_folders: list[tuple[Path, list[DuplicateInFolder], list[Path]]] = []
         for duplicate_folder in self.folders_with_duplicates:
             all_files: list[Path] =  list(duplicate_folder.iterdir())
-            duplicates_in_folder: set[DuplicateInFolder] = self.duplicates_in_folder(duplicate_folder)
+            duplicates_in_folder: list[DuplicateInFolder] = self.duplicates_in_folder(duplicate_folder)
             duplicate_files: set[Path] = set()
             for duplicate_match_set in duplicates_in_folder:
                 duplicate_files.add(duplicate_match_set.in_duplicate_folder)
