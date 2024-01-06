@@ -29,10 +29,10 @@ class NextcloudInfo:
     def base_file_url(self) -> str:
         return f"{self.domain}/apps/files/?dir=/"
 
-    def create_link(self, path: Path) -> str:
-        if path.is_relative_to(self.user_file_path):
+    def create_link(self, path: Path, is_folder: bool = False) -> str:
+        if (path.is_relative_to(self.user_file_path)):
             path = path.relative_to(self.user_file_path)
-        if path.is_dir():
+        if is_folder:
             return self._create_folder_link(path)
         parent_link = self._create_folder_link(path.parent)
         return parent_link + "/" + path.name
@@ -163,7 +163,7 @@ class JDupesOutput:
             duplicates_in_folder = entry[1]
             not_duplicate_files = entry[2]
             folder_link = self._nextcloud_info.create_link(
-                duplicate_folder)
+                duplicate_folder, is_folder=True)
             result.append(f"## Ordner mit Duplikaten: {folder_link}")
             duplicate_folder_size= humansize(sum(map(lambda x: x.size,
                 self.duplicates_in_folder(duplicate_folder))))
